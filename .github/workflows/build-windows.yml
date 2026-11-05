@@ -37,11 +37,14 @@ jobs:
           Write-Host "Windows TFM: $win"
 
       - name: Опубликовать приложение
-        run: dotnet publish ClockLab/ClockLab.csproj -c Release -f ${{ steps.tfm.outputs.tfm }} -p:WindowsPackageType=None -p:SelfContained=true -p:WindowsAppSDKSelfContained=true -p:RuntimeIdentifier=win-x64
+        run: dotnet publish ClockLab/ClockLab.csproj -c Release -f ${{ steps.tfm.outputs.tfm }} -p:WindowsPackageType=None -p:SelfContained=true -p:WindowsAppSDKSelfContained=true
 
       - name: Упаковать в zip
         shell: pwsh
-        run: Compress-Archive -Path "ClockLab/bin/Release/net*-windows*/*/publish/*" -DestinationPath ClockLab-windows.zip -Force
+        run: |
+          $exe = Get-ChildItem -Path "ClockLab/bin/Release" -Recurse -Filter "ClockLab.exe" | Select-Object -First 1
+          Write-Host "Готовый exe: $($exe.FullName)"
+          Compress-Archive -Path (Join-Path $exe.Directory.FullName '*') -DestinationPath ClockLab-windows.zip -Force
 
       - name: Сохранить артефакт
         uses: actions/upload-artifact@v4

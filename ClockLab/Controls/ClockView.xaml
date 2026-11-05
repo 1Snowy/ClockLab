@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ClockLab.Controls.ClockView">
+
+    <Grid WidthRequest="200" HeightRequest="200">
+
+        <Ellipse Fill="White" Stroke="Black" StrokeThickness="3" />
+
+        <Grid x:Name="Ticks" />
+
+        <Grid x:Name="HourHand">
+            <Line X1="100" Y1="100" X2="100" Y2="55" Stroke="Black" StrokeThickness="6" StrokeLineCap="Round" />
+        </Grid>
+
+        <Grid x:Name="MinuteHand">
+            <Line X1="100" Y1="100" X2="100" Y2="30" Stroke="Black" StrokeThickness="4" StrokeLineCap="Round" />
+        </Grid>
+
+        <Grid x:Name="SecondHand">
+            <Line X1="100" Y1="100" X2="100" Y2="25" Stroke="Red" StrokeThickness="2" StrokeLineCap="Round" />
+        </Grid>
+
+        <Ellipse Fill="Black" WidthRequest="10" HeightRequest="10" HorizontalOptions="Center" VerticalOptions="Center" />
+    </Grid>
+</ContentView>

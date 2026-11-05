@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ClockLab.Controls"
+             x:Class="ClockLab.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="28">
+
+            <Label Text="Текущее время"
+                   FontSize="26" FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <controls:ClockView HorizontalOptions="Center" />
+
+            <Label Text="Мировые часы"
+                   FontSize="26" FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <HorizontalStackLayout Spacing="28" HorizontalOptions="Center">
+                <VerticalStackLayout>
+                    <Label Text="Лондон" HorizontalOptions="Center" />
+                    <controls:ClockView TimeZoneId="Europe/London" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout>
+                    <Label Text="Нью-Йорк" HorizontalOptions="Center" />
+                    <controls:ClockView TimeZoneId="America/New_York" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout>
+                    <Label Text="Токио" HorizontalOptions="Center" />
+                    <controls:ClockView TimeZoneId="Asia/Tokyo" />
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

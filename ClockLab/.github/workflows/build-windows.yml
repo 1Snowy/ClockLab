@@ -1,0 +1,58 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Забрать код
+        uses: actions/checkout@v4
+
+      - name: Установить .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - name: Установить рабочую нагрузку MAUI
+        run: dotnet workload install maui
+        continue-on-error: true
+
+      - name: Определить целевой фреймворк
+        id: tfm
+        shell: pwsh
+        run: |
+          $nodes = Select-Xml -Path ClockLab.csproj -XPath '//*[local-name()="TargetFrameworks"]'
+          $win = ($nodes | ForEach-Object { $_.Node.InnerText -split ';' } |
+                  Where-Object { $_ -like '*-windows*' } | Select-Object -First 1)
+          "tfm=$win" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Windows TFM: $win"
+
+      - name: Опубликовать приложение
+        run: dotnet publish ClockLab.csproj -c Release -f ${{ steps.tfm.outputs.tfm }} -p:WindowsPackageType=None -p:SelfContained=true -p:WindowsAppSDKSelfContained=true -p:RuntimeIdentifier=win-x64
+
+      - name: Упаковать в zip
+        shell: pwsh
+        run: Compress-Archive -Path "bin/Release/net*-windows*/*/publish/*" -DestinationPath ClockLab-windows.zip -Force
+
+      - name: Сохранить артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClockLab-windows
+          path: ClockLab-windows.zip
+
+      - name: Создать релиз
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: ClockLab v1.0.${{ github.run_number }}
+          body: Windows-сборка. Распакуйте zip и запустите ClockLab.exe.
+          files: ClockLab-windows.zip

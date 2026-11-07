@@ -1,12 +1,5 @@
 ﻿namespace ClockLab.Controls;
 
-/// <summary>
-/// Компонент аналоговых часов.
-/// Рисуется только графическими примитивами (Ellipse, Line),
-/// время обновляется каждую секунду собственным таймером.
-/// Свойство TimeZoneId задаёт часовой пояс (IANA-имя, например "Europe/London");
-/// если не задано — берётся локальное время.
-/// </summary>
 public partial class ClockView : ContentView
 {
     private TimeZoneInfo _zone = TimeZoneInfo.Local;
@@ -27,8 +20,7 @@ public partial class ClockView : ContentView
     {
         InitializeComponent();
 
-        // 12 делений циферблата: каждое деление — короткая линия,
-        // повёрнутая на i * 30 градусов вокруг центра
+    
         for (int i = 0; i < 12; i++)
         {
             var tick = new Line
@@ -45,13 +37,13 @@ public partial class ClockView : ContentView
             Ticks.Add(holder);
         }
 
-        // таймер: раз в секунду переставляем стрелки
+        
         _timer = Dispatcher.CreateTimer();
         _timer.Interval = TimeSpan.FromSeconds(1);
         _timer.Tick += (_, _) => UpdateHands();
         _timer.Start();
 
-        UpdateHands(); // чтобы время было сразу, не через секунду
+        UpdateHands(); 
     }
 
     private static void OnTimeZoneIdChanged(BindableObject bindable, object oldValue, object newValue)
@@ -68,7 +60,7 @@ public partial class ClockView : ContentView
             clock._zone = TimeZoneInfo.Local;
         }
 
-        // защита: при разборе XAML свойство может прийти раньше, чем построены элементы
+    
         if (clock.SecondHand != null)
             clock.UpdateHands();
     }
@@ -77,8 +69,7 @@ public partial class ClockView : ContentView
     {
         DateTime now = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _zone);
 
-        // полный оборот = 360°: секунда = 6°, минута = 6°, час = 30°
-        // дробные добавки делают движение минутной и часовой стрелок плавным
+    
         SecondHand.Rotation = now.Second * 6;
         MinuteHand.Rotation = now.Minute * 6 + now.Second * 0.1;
         HourHand.Rotation = (now.Hour % 12) * 30 + now.Minute * 0.5;

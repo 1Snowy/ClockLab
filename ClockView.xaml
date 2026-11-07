@@ -3,18 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ClockLab.Controls.ClockView">
 
-    <!-- Внутри компонента НЕТ ни одного текстового элемента или прогрессбара:
-         только графические примитивы (Ellipse и Line) -->
+
     <Grid WidthRequest="200" HeightRequest="200">
 
-        <!-- циферблат -->
+        
         <Ellipse Fill="White" Stroke="Black" StrokeThickness="3" />
 
-        <!-- сюда код добавит 12 делений -->
+      
         <Grid x:Name="Ticks" />
 
-        <!-- стрелки: каждая лежит в своей сетке размером с циферблат,
-             вращается сама сетка (Rotation) вокруг её центра (100,100) -->
+        
         <Grid x:Name="HourHand">
             <Line X1="100" Y1="100" X2="100" Y2="55"
                   Stroke="Black" StrokeThickness="6" StrokeLineCap="Round" />
@@ -30,7 +28,7 @@
                   Stroke="Red" StrokeThickness="2" StrokeLineCap="Round" />
         </Grid>
 
-        <!-- центральная ось -->
+        
         <Ellipse Fill="Black" WidthRequest="10" HeightRequest="10"
                  HorizontalOptions="Center" VerticalOptions="Center" />
     </Grid>

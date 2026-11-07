@@ -1,14 +1,18 @@
-﻿namespace ClockLab.Controls;
+using System;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.Dispatching;
+using Microsoft.Maui.Graphics;
+
+namespace ClockLab.Controls;
 
 public partial class ClockView : ContentView
 {
     private TimeZoneInfo _zone = TimeZoneInfo.Local;
-    private readonly IDispatcherTimer _timer;
+    private bool _isAnimationRunning = false;
 
     public static readonly BindableProperty TimeZoneIdProperty =
-        BindableProperty.Create(nameof(TimeZoneId), typeof(string), typeof(ClockView),
-            defaultValue: null,
-            propertyChanged: OnTimeZoneIdChanged);
+        BindableProperty.Create(nameof(TimeZoneId), typeof(string), typeof(ClockView), defaultValue: null, propertyChanged: OnTimeZoneIdChanged);
 
     public string TimeZoneId
     {
@@ -20,7 +24,6 @@ public partial class ClockView : ContentView
     {
         InitializeComponent();
 
-    
         for (int i = 0; i < 12; i++)
         {
             var tick = new Line
@@ -37,13 +40,32 @@ public partial class ClockView : ContentView
             Ticks.Add(holder);
         }
 
-        
-        _timer = Dispatcher.CreateTimer();
-        _timer.Interval = TimeSpan.FromSeconds(1);
-        _timer.Tick += (_, _) => UpdateHands();
-        _timer.Start();
+        StartSmoothClock();
+    }
 
-        UpdateHands(); 
+    private void StartSmoothClock()
+    {
+        if (_isAnimationRunning) return;
+        _isAnimationRunning = true;
+
+        var clockAnimation = new Animation(_ => UpdateHandsSmoothly());
+
+        clockAnimation.Commit(this, "SmoothClockLoop", length: 1000, repeat: () => true);
+    }
+
+    private void UpdateHandsSmoothly()
+    {
+        if (SecondHand == null || MinuteHand == null || HourHand == null) return;
+        DateTime now = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _zone);
+        double totalSeconds = now.Second + (now.Millisecond / 1000.0);
+
+        double totalMinutes = now.Minute + (totalSeconds / 60.0);
+
+        double totalHours = (now.Hour % 12) + (totalMinutes / 60.0);
+
+        SecondHand.Rotation = totalSeconds * 6;     
+        MinuteHand.Rotation = totalMinutes * 6;     
+        HourHand.Rotation = totalHours * 30;         
     }
 
     private static void OnTimeZoneIdChanged(BindableObject bindable, object oldValue, object newValue)
@@ -51,27 +73,13 @@ public partial class ClockView : ContentView
         var clock = (ClockView)bindable;
         try
         {
-            clock._zone = newValue is string id && !string.IsNullOrWhiteSpace(id)
-                ? TimeZoneInfo.FindSystemTimeZoneById(id)
-                : TimeZoneInfo.Local;
+            clock._zone = newValue is string id && !string.IsNullOrWhiteSpace(id) ? TimeZoneInfo.FindSystemTimeZoneById(id) : TimeZoneInfo.Local;
         }
         catch (TimeZoneNotFoundException)
         {
             clock._zone = TimeZoneInfo.Local;
         }
 
-    
-        if (clock.SecondHand != null)
-            clock.UpdateHands();
-    }
-
-    private void UpdateHands()
-    {
-        DateTime now = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _zone);
-
-    
-        SecondHand.Rotation = now.Second * 6;
-        MinuteHand.Rotation = now.Minute * 6 + now.Second * 0.1;
-        HourHand.Rotation = (now.Hour % 12) * 30 + now.Minute * 0.5;
+        clock.UpdateHandsSmoothly();
     }
 }
